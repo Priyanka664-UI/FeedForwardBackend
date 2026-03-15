@@ -7,7 +7,7 @@ public class AuthDTO {
         public String email;
         public String phone;
         public String password;
-        public String role; // DONOR, NGO, VOLUNTEER
+        public String role;
         public String organization;
         public String city;
     }
@@ -33,7 +33,7 @@ public class AuthDTO {
 
         public AuthResponse(Long userId, String fullName, String email, String phone, String role,
                             String organization, String city, int mealsSaved, int totalDonations,
-                            int totalClaims, double rating) {
+                            int totalClaims, double rating, String token) {
             this.userId = userId;
             this.fullName = fullName;
             this.email = email;
@@ -45,7 +45,7 @@ public class AuthDTO {
             this.totalDonations = totalDonations;
             this.totalClaims = totalClaims;
             this.rating = rating;
-            this.token = "token-" + userId;
+            this.token = token;
         }
     }
 }

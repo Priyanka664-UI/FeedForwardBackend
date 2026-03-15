@@ -1,5 +1,6 @@
 package FoodWasteManagement.FoodWasteManagement.service;
 
+import FoodWasteManagement.FoodWasteManagement.config.JwtUtil;
 import FoodWasteManagement.FoodWasteManagement.dto.AuthDTO;
 import FoodWasteManagement.FoodWasteManagement.model.User;
 import FoodWasteManagement.FoodWasteManagement.repository.UserRepository;
@@ -11,9 +12,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public AuthDTO.AuthResponse register(AuthDTO.RegisterRequest req) {
@@ -24,7 +27,7 @@ public class AuthService {
         user.setFullName(req.fullName);
         user.setEmail(req.email);
         user.setPhone(req.phone);
-        user.setPassword(req.password); // hash in production
+        user.setPassword(req.password);
         user.setRole(User.Role.valueOf(req.role.toUpperCase()));
         user.setOrganization(req.organization);
         user.setCity(req.city);
@@ -49,16 +52,18 @@ public class AuthService {
                     user.setFullName(fullName != null ? fullName : email);
                     user.setEmail(email);
                     user.setPassword("GOOGLE_AUTH");
-                    user.setRole(User.Role.DONOR); // default role, user can update later
+                    user.setRole(User.Role.DONOR);
                     return toResponse(userRepository.save(user));
                 });
     }
 
     private AuthDTO.AuthResponse toResponse(User user) {
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole().name());
         return new AuthDTO.AuthResponse(
                 user.getId(), user.getFullName(), user.getEmail(), user.getPhone(),
                 user.getRole().name(), user.getOrganization(), user.getCity(),
-                user.getMealsSaved(), user.getTotalDonations(), user.getTotalClaims(), user.getRating()
+                user.getMealsSaved(), user.getTotalDonations(), user.getTotalClaims(),
+                user.getRating(), token
         );
     }
 }

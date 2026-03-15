@@ -34,6 +34,9 @@ public class User {
     private int totalClaims = 0;
     private double rating = 0.0;
 
+    @Column(nullable = false, columnDefinition = "VARCHAR(20) DEFAULT 'Active'")
+    private String status = "Active";
+
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -63,5 +66,7 @@ public class User {
     public void setTotalClaims(int totalClaims) { this.totalClaims = totalClaims; }
     public double getRating() { return rating; }
     public void setRating(double rating) { this.rating = rating; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
 }

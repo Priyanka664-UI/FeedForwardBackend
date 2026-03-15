@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
+import java.util.Map;
 
 public interface DonationRepository extends JpaRepository<Donation, Long> {
 
@@ -20,6 +21,11 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
 
     @Query("SELECT d FROM Donation d WHERE d.status = 'POSTED' ORDER BY d.createdAt DESC")
     List<Donation> findAllAvailable();
+
+    long countByStatus(Donation.DonationStatus status);
+
+    @Query(value = "SELECT EXTRACT(MONTH FROM created_at) AS month, COUNT(*) AS count FROM donations WHERE created_at >= NOW() - INTERVAL '6 months' GROUP BY EXTRACT(MONTH FROM created_at) ORDER BY month", nativeQuery = true)
+    List<Map<String, Object>> countMonthlyDonations();
 
     @Query("SELECT d FROM Donation d WHERE d.status = 'POSTED' AND " +
            "(6371 * acos(cos(radians(:lat)) * cos(radians(d.latitude)) * " +
