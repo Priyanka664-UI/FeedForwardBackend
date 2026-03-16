@@ -28,6 +28,12 @@ public class UserController {
         return userService.updateProfile(id, updates);
     }
 
+    // PATCH /api/users/{id}/change-password
+    @PatchMapping("/{id}/change-password")
+    public void changePassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        userService.changePassword(id, body.get("currentPassword"), body.get("newPassword"));
+    }
+
     // GET /api/users/{id}/impact
     @GetMapping("/{id}/impact")
     public Map<String, Object> getImpactStats(@PathVariable Long id) {

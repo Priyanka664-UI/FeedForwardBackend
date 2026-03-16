@@ -1,6 +1,7 @@
 package FoodWasteManagement.FoodWasteManagement.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,6 +12,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -29,7 +31,7 @@ public class Notification {
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public enum NotificationType { SUCCESS, WARNING, DANGER, INFO, SYSTEM }
+    public enum NotificationType { SUCCESS, WARNING, DANGER, INFO, SYSTEM, SUPPORT }
 
     // Getters and Setters
     public Long getId() { return id; }

@@ -2,9 +2,11 @@ package FoodWasteManagement.FoodWasteManagement.controller;
 
 import FoodWasteManagement.FoodWasteManagement.dto.DonationDTO;
 import FoodWasteManagement.FoodWasteManagement.model.Donation;
+import FoodWasteManagement.FoodWasteManagement.model.Notification;
 import FoodWasteManagement.FoodWasteManagement.model.User;
 import FoodWasteManagement.FoodWasteManagement.repository.ClaimRepository;
 import FoodWasteManagement.FoodWasteManagement.repository.DonationRepository;
+import FoodWasteManagement.FoodWasteManagement.repository.NotificationRepository;
 import FoodWasteManagement.FoodWasteManagement.repository.UserRepository;
 import FoodWasteManagement.FoodWasteManagement.service.DonationService;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @RestController
 @RequestMapping("/api/admin")
 @CrossOrigin(origins = "*")
@@ -26,12 +30,16 @@ public class AdminController {
     private final ClaimRepository claimRepository;
     private final DonationService donationService;
 
+    private final NotificationRepository notificationRepository;
+
     public AdminController(UserRepository userRepository, DonationRepository donationRepository,
-                           ClaimRepository claimRepository, DonationService donationService) {
+                           ClaimRepository claimRepository, DonationService donationService,
+                           NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.donationRepository = donationRepository;
         this.claimRepository = claimRepository;
         this.donationService = donationService;
+        this.notificationRepository = notificationRepository;
     }
 
     // GET /api/admin/dashboard
@@ -108,6 +116,34 @@ public class AdminController {
         if (!donationRepository.existsById(id))
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Donation not found");
         donationRepository.deleteById(id);
+    }
+
+    // GET /api/admin/support
+    @Transactional
+    @GetMapping("/support")
+    public List<Map<String, Object>> getSupportTickets() {
+        return notificationRepository.findAllSupportTickets().stream().map(n -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", n.getId());
+            m.put("userId", n.getUser().getId());
+            m.put("userName", n.getUser().getFullName());
+            m.put("userEmail", n.getUser().getEmail());
+            m.put("subject", n.getTitle());
+            m.put("message", n.getDescription());
+            m.put("resolved", !n.isUnread());
+            m.put("createdAt", n.getCreatedAt());
+            return m;
+        }).collect(Collectors.toList());
+    }
+
+    // PATCH /api/admin/support/{id}/resolve
+    @PatchMapping("/support/{id}/resolve")
+    public Map<String, Object> resolveTicket(@PathVariable Long id) {
+        Notification n = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Ticket not found"));
+        n.setUnread(false);
+        notificationRepository.save(n);
+        return Map.of("id", n.getId(), "resolved", true);
     }
 
     // GET /api/admin/analytics

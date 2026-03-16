@@ -39,6 +39,18 @@ public class NotificationService {
         notificationRepository.deleteById(notificationId);
     }
 
+    @Transactional
+    public void createSupportNotification(Long userId, String subject, String message, String type) {
+        User user = getUser(userId);
+        Notification n = new Notification();
+        n.setUser(user);
+        n.setTitle("[" + type + "] " + subject);
+        n.setDescription(message);
+        n.setType(Notification.NotificationType.SUPPORT);
+        n.setUnread(true);
+        notificationRepository.save(n);
+    }
+
     private User getUser(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));

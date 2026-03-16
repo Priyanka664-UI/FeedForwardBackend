@@ -14,4 +14,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Modifying
     @Query("UPDATE Notification n SET n.unread = false WHERE n.user = :user")
     void markAllReadByUser(@Param("user") User user);
+
+    @Query("SELECT n FROM Notification n WHERE n.type = FoodWasteManagement.FoodWasteManagement.model.Notification.NotificationType.SUPPORT ORDER BY n.createdAt DESC")
+    List<Notification> findAllSupportTickets();
 }
